@@ -1,0 +1,44 @@
+DROP DATABASE reddit;
+CREATE DATABASE reddit;
+CREATE TABLE reddit.subreddits(id BIGINT PRIMARY KEY AUTO_INCREMENT, name VARCHAR(255), created_at DATETIME DEFAULT CURRENT_TIMESTAMP, updated_at DATETIME ON UPDATE CURRENT_TIMESTAMP, deleted_at DATETIME DEFAULT NULL);
+CREATE TABLE reddit.accounts(id BIGINT PRIMARY KEY AUTO_INCREMENT, name VARCHAR(255), created_at DATETIME DEFAULT CURRENT_TIMESTAMP, updated_at DATETIME ON UPDATE CURRENT_TIMESTAMP, deleted_at DATETIME DEFAULT NULL);
+CREATE TABLE reddit.subscriptions(id BIGINT PRIMARY KEY AUTO_INCREMENT, subreddit_id BIGINT, account_id BIGINT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP, updated_at DATETIME ON UPDATE CURRENT_TIMESTAMP, deleted_at DATETIME DEFAULT NULL, FOREIGN KEY(subreddit_id) REFERENCES reddit.subreddits(id), FOREIGN KEY(account_id) REFERENCES reddit.accounts(id));
+
+CREATE TABLE reddit.saves(id BIGINT PRIMARY KEY AUTO_INCREMENT, subreddit_id BIGINT, account_id BIGINT, saves_type VARCHAR(255), name VARCHAR(255), author VARCHAR(255), date_posted DATETIME, link VARCHAR(255), upvotes INT, downvotes INT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP, updated_at DATETIME ON UPDATE CURRENT_TIMESTAMP, deleted_at DATETIME DEFAULT NULL, FOREIGN KEY(subreddit_id) REFERENCES reddit.subreddits(id), FOREIGN KEY(account_id) REFERENCES reddit.accounts(id));
+CREATE TABLE reddit.posts(id BIGINT PRIMARY KEY AUTO_INCREMENT, save_id BIGINT, title TEXT, selftext MEDIUMTEXT,FOREIGN KEY(save_id) REFERENCES reddit.saves(id));
+CREATE TABLE reddit.comments(id BIGINT PRIMARY KEY AUTO_INCREMENT, save_id BIGINT, body MEDIUMTEXT, FOREIGN KEY(save_id) REFERENCES reddit.saves(id));
+
+-----------------------------------------------------------------------------------------------
+
+DROP DATABASE reddit;
+CREATE DATABASE reddit;
+CREATE TABLE reddit.subreddits(id BIGINT PRIMARY KEY AUTO_INCREMENT, name VARCHAR(255), created_at DATETIME, updated_at DATETIME, deleted_at DATETIME DEFAULT NULL);
+CREATE TABLE reddit.accounts(id BIGINT PRIMARY KEY AUTO_INCREMENT, name VARCHAR(255), created_at DATETIME, updated_at DATETIME, deleted_at DATETIME DEFAULT NULL);
+CREATE TABLE reddit.subscriptions(id BIGINT PRIMARY KEY AUTO_INCREMENT, subreddit_id BIGINT, account_id BIGINT, created_at DATETIME, updated_at DATETIME, deleted_at DATETIME DEFAULT NULL, FOREIGN KEY(subreddit_id) REFERENCES reddit.subreddits(id), FOREIGN KEY(account_id) REFERENCES reddit.accounts(id));
+
+CREATE TABLE reddit.saves(id BIGINT PRIMARY KEY AUTO_INCREMENT, subreddit_id BIGINT, account_id BIGINT, saves_type VARCHAR(255), name VARCHAR(255), author VARCHAR(255), date_posted DATETIME, link VARCHAR(255), upvotes INT, downvotes INT, created_at DATETIME, updated_at DATETIME, deleted_at DATETIME DEFAULT NULL, FOREIGN KEY(subreddit_id) REFERENCES reddit.subreddits(id), FOREIGN KEY(account_id) REFERENCES reddit.accounts(id));
+CREATE TABLE reddit.posts(id BIGINT PRIMARY KEY AUTO_INCREMENT, save_id BIGINT, title TEXT, selftext MEDIUMTEXT,FOREIGN KEY(save_id) REFERENCES reddit.saves(id));
+CREATE TABLE reddit.comments(id BIGINT PRIMARY KEY AUTO_INCREMENT, save_id BIGINT, body MEDIUMTEXT, FOREIGN KEY(save_id) REFERENCES reddit.saves(id));
+
+-------------------------------------------------------------------------------------------
+
+npx sequelize migration:generate --name create-subreddits-table
+npx sequelize migration:generate --name create-accounts-table
+npx sequelize migration:generate --name create-subscriptions-table
+npx sequelize migration:generate --name create-saves-table
+npx sequelize migration:generate --name create-posts-table
+npx sequelize migration:generate --name create-comments-table
+
+-------------------------------------------------------------------------------------------
+
+npx sequelize model:generate --name Subreddit --attributes id:bigint,name:string,created_at:date,updated_at:date,deleted_at:date
+
+npx sequelize model:generate --name Account --attributes id:bigint,name:string,created_at:date,updated_at:date,deleted_at:date
+
+npx sequelize model:generate --name Subscription --attributes id:bigint,subreddit_id:bigint,account_id:bigint,created_at:date,updated_at:date,deleted_at:date
+
+npx sequelize model:generate --name Save --attributes id:bigint,subreddit_id:bigint,account_id:bigint,saves_type:string,name:string,author:string,date_posted:date,link:string,upvotes:bigint,downvotes:bigint,created_at:date,updated_at:date,deleted_at:date
+
+npx sequelize model:generate --name Post --attributes id:bigint,save_id:bigint,title:text,selftext:text
+
+npx sequelize model:generate --name Comment --attributes id:bigint,save_id:bigint,body:text

@@ -78,7 +78,7 @@ class MainWindow(QWidget):
         layout = QGridLayout()
 
         subreddit_list = QListWidget()
-        self.saves_df = account.saves(overwrite=True)
+        self.saves_df = account.saves(overwrite=False)
 
         subreddits = self.get_subreddits_from_saves()
         subreddits = np.array((['All'] + sorted(subreddits, key=str.casefold)))

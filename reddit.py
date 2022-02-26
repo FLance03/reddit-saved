@@ -18,8 +18,8 @@ class AuthenticationStatus(Enum):
 class Account:
     def __init__(self):
         super().__init__()
-        self.CLIENT_ID = ''
-        self.SECRET_KEY = ''
+        self.CLIENT_ID = 'drccp9VbeLZRSjh1G0h6Pg'
+        self.SECRET_KEY = 'HbxMNNv71FKLDSdy9Mi0FfRWIWK-fw'
         self.authentication_status = AuthenticationStatus.NEVER_AUTHENTICATED
         self.username = None
         self.password = None
@@ -96,7 +96,7 @@ class Account:
                         'author': data['author'],
                         'created': str(datetime.fromtimestamp(data['created']))
                     })
-                if post_num == 9:
+                if post_num == 49:
                     last_name = data['name']
                     print(last_name)
                     sleep(3)

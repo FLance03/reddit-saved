@@ -5,6 +5,10 @@ const CLIENT_ID = process.env.CLIENT_ID;
 const CLIENT_SECRET = process.env.CLIENT_SECRET;
 const REDIRECT_URI = `http://127.0.0.1:${process.env.PORT}/retreive-token`;
 
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 async function keepAliveToken(func, req) {
     const session = req.session;
 
@@ -68,9 +72,13 @@ async function getAccessToken(code) {
             code: code,
             redirect_uri: REDIRECT_URI,
         }),
+        // proxy: {
+        //     host: "http://192.168.49.1",
+        //     port: 8282,
+        // },
     });
-    // console.log(auth);
-    return auth.status == 200 ? auth : false;
+    console.log(auth);
+    return auth?.status == 200 ? auth : false;
 }
 
 async function getUsername(req) {
@@ -87,35 +95,37 @@ async function getUsername(req) {
 }
 
 async function getSaves(req) {
+    console.log(req.headers);
+    console.log(req.session);
     let cookies = req.signedCookies;
     let saves = [];
-    let lastName = ''
+    let lastName = req.query.after === undefined ? '' : req.query.after;
+    let remainingRecords = req.query.limit === undefined ? Infinity : req.query.limit;
     const limit = 50;
 
     if (cookies.username === false) {
         return false;
     }
     console.log('req.authHeader', req.authHeader);
-    while (true) {
+    while (remainingRecords > 0) {
         var res = await axios({
             method: 'get',
             url: `https://oauth.reddit.com/user/${cookies.username}/saved`,
             headers: req.authHeader,
             params: {
-                'limit': limit,
+                'limit': limit < remainingRecords ? limit : remainingRecords,
                 'after': lastName,
             },
         });
-        console.log(lastName)
         if (res?.data?.data?.children?.[0] === undefined) {
             break
         }else {
             var posts = res.data.data.children;
             for (var [i, post] of res.data.data.children.entries()) {
                 var data = post.data;
-                console.log(data.created)
+                console.log(post.kind)
                 saves.push({
-                    kind: data.kind,
+                    kind: post.kind,
                     subreddit: data.subreddit,
                     text: post.kind == 't1' ? data.body : data.title,
                     link: 'https://www.reddit.com' + data.permalink,
@@ -126,9 +136,10 @@ async function getSaves(req) {
                 });
             }
             if (i == limit - 1) {
+                remainingRecords -= limit;
                 lastName = data.name;
                 console.log(lastName);
-                await sleep(50);
+                await sleep(500);
             }else {
                 break;
             }

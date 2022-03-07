@@ -7,6 +7,7 @@ const app = express();
 const session = require('express-session');
 const redis  = require('ioredis');
 const cookieParser = require('cookie-parser');
+const history = require('connect-history-api-fallback');
 
 const routerAuth = require('./routes/auth');
 const routerSaves = require('./routes/saves');
@@ -59,14 +60,29 @@ app.use('*', (req, res, next) => {
     next();
 });
 
+app.use(history({
+    verbose: true,
+    rewrites: [
+        {from: /\/retreive-token/, to: '/retreive-token'},
+        {from: /\/saves/, to: function(context) {
+            return context.parsedUrl.pathname;
+          }},
+        {from: /\/test/, to: '/test'},
+    ],
+}));
+
 app.use('/', routerAuth);
 app.use('/saves', routerSaves);
 
-
-app.get('/', (req, res) => {
+app.get('/test', (req, res) => {
+    res.header("Access-Control-Allow-Origin", "http://127.0.0.1:8080");
     const session = req.session;
-    session.state = 'pakkk'
-    res.redirect('http://127.0.0.1:8080/')
+    const fs = require('fs');
+
+    fs.readFile('saves.json', (err, data) => {
+        console.log(JSON.parse(data).saves.length)
+        res.send(data);
+    });
 });
 
 

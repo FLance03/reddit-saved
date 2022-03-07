@@ -34,7 +34,7 @@ router.get('/retreive-token', async (req, res) => {
         let auth = await getAccessToken(code);
         console.log(1)
         if (auth == false) {
-            console.log(2)
+            console.log(2, code)
             res.send(JSON.stringify({
                 success: false,
             }));
@@ -47,6 +47,7 @@ router.get('/retreive-token', async (req, res) => {
             session.refresh_token = refresh_token;
             console.log(access_token, refresh_token);
 
+            req.authHeader = {'Authorization': `bearer ${req.session.access_token}`};
             username = await keepAliveToken(getUsername, req);
             console.log(username)
             if (username) {

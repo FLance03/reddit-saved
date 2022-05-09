@@ -1,4 +1,3 @@
-
 import {stemmer} from 'stemmer';
 
 // function test() {
@@ -12,12 +11,12 @@ import {stemmer} from 'stemmer';
 // }
 // test();
 
-export async function search(query, candidates) {
+export function search(query, candidates) {
     query = query.split(' ');
     candidates = candidates.map((candidate) => candidate.split(' '));
-    // queryWordsMatches[i][j] is true iff the ith candidate (starting 0) passes the jth word in the query
+    // queryWordsMatches[i][j] is > 0 iff the ith candidate (starting 0) passes the jth word in the query
     let candidatesMatches = new Array(candidates.length).fill(0)
-                                                        .map(() => new Array(query.length).fill(false));
+                                                        .map(() => new Array(query.length).fill(0));
     // matchCounts is an array where each element gives the number of matches for each word in the query
     let matchCounts = new Array(query.length).fill(0);
     for (let [qWordIndex, queryWord] of query.entries()) {
@@ -29,28 +28,21 @@ export async function search(query, candidates) {
                 let wordScore = editDistance(queryWord, candidateWord);
                 if (wordScore/queryWord.length < threshold) {
                     // Passes threshold and accept
-                // console.log(queryWord, candidateWord, wordScore, wordScore/queryWord.length);
-                //     console.log(wordScore/queryWord.length, queryWord, candidateWord);
-                    candidatesMatches[cIndex][qWordIndex] = true;
-                    matchCounts[qWordIndex]++;
+                    candidatesMatches[cIndex][qWordIndex] = 1 - wordScore/queryWord.length;
+                    matchCounts[qWordIndex] += 1 - wordScore/queryWord.length;
                 }
             }
         }
     }
-
-    let matchInfoContent = matchCounts.map(count => count != 0 ? Math.log2(candidates.filter(candidate => candidate.length > 0)
-                                                                                        .length / count) : 0);
+    const nonEmptyCandidates = candidates.filter(candidate => candidate.length > 0);
+    let matchInfoContent = matchCounts.map(count => count != 0 ? Math.log2(nonEmptyCandidates.length / count) : 0);
     // candidatesScores is an array of objects: {score, word count of candidate, index of candidate}
     // that have a non-zero score
-    let candidatesScores = await candidatesMatches.map((candidate, index) => {
-        let scores = candidate.map((match, index) => match ? matchInfoContent[index] : 0);
+    let candidatesScores = candidatesMatches.map((candidate, index) => {
+        let scores = candidate.map((match, index) => match * matchInfoContent[index]);
         let sumScores = scores.reduce((partialSum, infoContent) => partialSum + infoContent, 0);
         return {score: sumScores, wordCount: candidates[index].length, index: index};
     }).filter(candidate => candidate.score > 0);
-    // console.log(matchInfoContent)
-    // console.log(candidatesMatches)
-    // console.log(candidatesScores)
-
     let maxHeapScores = maxHeapify(candidatesScores);
     { // For asserting no repeating elements in heap
         let includedCandidates = new Array(candidates.length).fill(false);
@@ -76,7 +68,6 @@ function maxHeapify(arr) {
 
 function* getHighestScore(heap) {
     while (heap.length > 0){
-        // console.log(heap.length)
         let top = heap[0];
         yield top;
         heap[0] = heap[heap.length - 1];

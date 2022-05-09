@@ -36,7 +36,6 @@ app.use(cookieParser(secrets));
     redisClient.on('connect', () => {
         console.log('Initiating connection');
     });
-    console.log('oii');
     const redisStore = require('connect-redis')(session);
     app.use(session({
         secret: secrets,
@@ -54,6 +53,7 @@ app.use(cookieParser(secrets));
 // })();
 
 app.use('*', (req, res, next) => {
+    res.header("Access-Control-Allow-Origin", "http://127.0.0.1:8080");
     req.authHeader = req?.session?.access_token !== undefined 
                         ? {'Authorization': `bearer ${req.session.access_token}`}
                         : undefined;
@@ -75,12 +75,10 @@ app.use('/', routerAuth);
 app.use('/saves', routerSaves);
 
 app.get('/test', (req, res) => {
-    res.header("Access-Control-Allow-Origin", "http://127.0.0.1:8080");
     const session = req.session;
     const fs = require('fs');
 
     fs.readFile('saves.json', (err, data) => {
-        console.log(JSON.parse(data).saves.length)
         res.send(data);
     });
 });

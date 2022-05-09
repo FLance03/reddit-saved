@@ -30,10 +30,11 @@ router.get('/retreive-token', async (req, res) => {
     const session = req.session;
     let {error, code, state} = req.query
     
+    console.log(error, code, state, session.state)
     if (!error && state == session.state) {
         let auth = await getAccessToken(code);
         console.log(1)
-        if (auth == false) {
+        if (auth === null) {
             console.log(2, code)
             res.send(JSON.stringify({
                 success: false,
@@ -49,13 +50,11 @@ router.get('/retreive-token', async (req, res) => {
 
             req.authHeader = {'Authorization': `bearer ${req.session.access_token}`};
             username = await keepAliveToken(getUsername, req);
-            console.log(username)
+            
             if (username) {
                 console.log(4)
                 res.cookie('username', username, {signed: true});
-                res.send(JSON.stringify({
-                    success: true,
-                }));
+                res.redirect('http://127.0.0.1:8080/saves');
             }else {
                 res.send(JSON.stringify({
                     success: false,

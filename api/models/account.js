@@ -1,5 +1,6 @@
 'use strict';
 const {
+  Sequelize,
   Model
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
@@ -17,7 +18,7 @@ module.exports = (sequelize, DataTypes) => {
           allowNull: false,
         },
       });
-      this.hasMany(models.Saves, {
+      this.hasMany(models.Save, {
         foreignKey: {
           name: 'account_id',
           allowNull: false,

@@ -16,15 +16,19 @@ module.exports = {
         type: Sequelize.BIGINT,
         allowNull: false,
       },
+      author_id: {
+        type: Sequelize.BIGINT,
+        allowNull: false,
+      },
+      child_id: {
+        type: Sequelize.BIGINT,
+        allowNull: false,
+      },
       saves_type: {
         type: Sequelize.STRING,
         allowNull: false,
       },
       name: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      author: {
         type: Sequelize.STRING,
         allowNull: false,
       },
@@ -34,14 +38,6 @@ module.exports = {
       },
       link: {
         type: Sequelize.STRING,
-        allowNull: false,
-      },
-      upvotes: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-      },
-      downvotes: {
-        type: Sequelize.INTEGER,
         allowNull: false,
       },
       created_at: {

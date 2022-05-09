@@ -134,7 +134,7 @@ export default {
                     ? text.substring(0, this.textColumnMaxLength - 3) + '...' 
                     : text;
       },
-      async search({options: options, searchText: search}) {
+      search({options: options, searchText: search}) {
           // options[k] returns the index of the chosen option from the options of this.dropdowns[k]
           let stemSearch = this.stemSentences(search);
           this.clickCount = 0;
@@ -153,7 +153,7 @@ export default {
                       searchedRecords.push([]);
                   }
               }
-              this.searchResults = await this.getSearchResults(stemSearch, searchedRecords.map(record => record[this.dropdowns[2][options[2]].value]));
+              this.searchResults = this.getSearchResults(stemSearch, searchedRecords.map(record => record[this.dropdowns[2][options[2]].value]));
               
               this.displayList = this.getNextSetOfResults();
               this.showingSearchResults = true;
@@ -175,7 +175,6 @@ export default {
           window.scrollTo(0,0);
       },
       sortBy({key, type}) {
-          console.log(this.lastSort, key)
           if (this.showingSearchResults) {
               this.displayList = this.savesList;
               this.showingSearchResults = false;
@@ -199,7 +198,6 @@ export default {
           }else {
             sortOrder = undefined;
           }
-        console.log(this.displayList.map((record, index) => [record[key], index]));
           let records = this.displayList.map((record, index) => [record[key], index])
                                         .sort(sortOrder);
           this.displayList = records.map(record => this.displayList[record[1]]);
@@ -215,21 +213,22 @@ export default {
     let savesLength = await axios({
           url: "http://127.0.0.1:13504/saves/number",
           method: "get",
-        //   withCredentials: true,
+          withCredentials: true,
     });
     let saves = await axios({
-        url: "http://127.0.0.1:13504/test",
+        url: "http://127.0.0.1:13504/saves",
         method: "get",
-        // withCredentials: true,
+        withCredentials: true,
     });
-    console.log(savesLength.data.number);
-    this.savesCount = savesLength.data.number;
+    this.savesCount = savesLength;
     
     let subreddits = [];
     for (const [i, post] of saves.data.saves.entries()) {
         subreddits.push(post.subreddit);
         post['saveNum'] = i + 1;
-        post['stemmedText'] = this.stemSentences(post.text);
+        post['text'] = post.kind == 't1' ? post.body : post.title; // If comment, show comment body; if submission, title
+        post['stemmedText'] = this.stemSentences(post['text']);
+        post['created'] = post.created.split('T')[0]
         this.savesList.push(post);
     }
     subreddits = Array.from(new Set(subreddits));

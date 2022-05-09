@@ -1,5 +1,6 @@
 'use strict';
 const {
+  Sequelize,
   Model
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
@@ -14,6 +15,12 @@ module.exports = (sequelize, DataTypes) => {
       this.belongsTo(models.Account, {
         foreignKey: {
           name: 'account_id',
+          allowNull: false,
+        }
+      });
+      this.belongsTo(models.Account, {
+        foreignKey: {
+          name: 'author_id',
           allowNull: false,
         }
       });
@@ -48,9 +55,16 @@ module.exports = (sequelize, DataTypes) => {
       type: Sequelize.BIGINT,
       allowNull: false,
     },
+    author_id: {
+      type: Sequelize.BIGINT,
+      allowNull: false,
+    },
     account_id: {
       type: Sequelize.BIGINT,
       allowNull: false,
+    },
+    child_id: {
+      type: Sequelize.BIGINT,
     },
     saves_type: {
       type: Sequelize.STRING,
@@ -60,24 +74,12 @@ module.exports = (sequelize, DataTypes) => {
       type: Sequelize.STRING,
       allowNull: false,
     },
-    author: {
-      type: Sequelize.STRING,
-      allowNull: false,
-    },
     date_posted: {
       type: Sequelize.DATE,
       allowNull: false,
     },
     link: {
       type: Sequelize.STRING,
-      allowNull: false,
-    },
-    upvotes: {
-      type: Sequelize.INTEGER,
-      allowNull: false,
-    },
-    downvotes: {
-      type: Sequelize.INTEGER,
       allowNull: false,
     },
     created_at: {

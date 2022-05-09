@@ -18,8 +18,8 @@ class AuthenticationStatus(Enum):
 class Account:
     def __init__(self):
         super().__init__()
-        self.CLIENT_ID = ''
-        self.SECRET_KEY = ''
+        self.CLIENT_ID = 'drccp9VbeLZRSjh1G0h6Pg'
+        self.SECRET_KEY = 'HbxMNNv71FKLDSdy9Mi0FfRWIWK-fw'
         self.authentication_status = AuthenticationStatus.NEVER_AUTHENTICATED
         self.username = None
         self.password = None
@@ -31,7 +31,6 @@ class Account:
     def login(self, username, password='', two_factor='', access_token=''):
         if password == '' and access_token == '':
             parent_dir = pathlib.Path(__file__).parent.resolve()
-            print(os.path.join(parent_dir, 'bin', f'{username}_saves.pkl'))
             if not os.path.exists(os.path.join(parent_dir, 'bin', f'{username}_saves.pkl')):
                 raise Exception("User has either not been authenticated at least once or file has been deleted")
             else:
@@ -54,11 +53,9 @@ class Account:
                 self.password = password
                 self.authentication_status = AuthenticationStatus.IS_AUTHENTICATED
                 self.headers['Authorization'] = f'bearer {token}'
-                print(token)
                 return True
         else:
             res = requests.get('https://oauth.reddit.com/api/v1/me', headers={**self.headers, 'Authorization': f'bearer {access_token}'})
-            print(res)
             if res.status_code != 200:
                 return False
             else:
@@ -78,15 +75,17 @@ class Account:
             raise Exception('Cant overwrite file without re-authentication')
 
         def retrieve_saves_from_reddit():
-            print('oiiiiiiiiiiiiiiiiiiiiiiiiiiiii')
             saves_df = []
             last_name = ''
+            index = 0
             while True:
                 saves = requests.get(f'https://oauth.reddit.com/user/{self.username}/saved', headers=self.headers,
                                      params={'limit': 50, 'after': last_name}).json()
                 for post_num, post in enumerate(saves['data']['children']):
                     data = post['data']
+                    index += 1
                     saves_df.append({
+                        'index': index,
                         'kind': post['kind'],
                         'subreddit': data['subreddit'],
                         'text': data['body'] if post['kind'] == 't1' else data['title'],
@@ -98,12 +97,11 @@ class Account:
                     })
                 if post_num == 49:
                     last_name = data['name']
-                    print(last_name)
                     sleep(3)
                 else:
-                    print(post_num)
                     break
             saves_df = pd.DataFrame(saves_df)
+            saves_df.set_index('index')
             parent_dir = pathlib.Path(__file__).parent.resolve()
             if not os.path.exists(os.path.join(parent_dir, 'bin')):
                 os.mkdir(os.path.join(parent_dir, 'bin'))

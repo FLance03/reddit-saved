@@ -1,0 +1,23 @@
+[33mcommit 770615fe42a355b1549b247b871ebb009d265797[m[33m ([m[1;36mHEAD[m[33m, [m[1;32mgithub-repo[m[33m)[m
+Author: FLance03 <60454430+FLance03@users.noreply.github.com>
+Date:   Mon Mar 7 20:03:57 2022 +0800
+
+    Added and connected frontend to backend. Finished initial display for oauth2 with reddit and filtering, sorting, and searching saves
+
+[33mcommit 6eb7f150d48c63df810a43e30b73bca0e7c3efbc[m
+Author: FLance03 <60454430+FLance03@users.noreply.github.com>
+Date:   Sun Feb 27 00:47:40 2022 +0800
+
+    Added oauth2 for sequelize and initialized vue
+
+[33mcommit f84a6b144f7979126956164d342ec1f50a0525d7[m
+Author: FLance03 <60454430+FLance03@users.noreply.github.com>
+Date:   Sun Feb 27 00:47:19 2022 +0800
+
+    Added oauth2 for sequelize and initialized vue
+
+[33mcommit e21a9f88ccbcf225956011f1be5aa06c95277fc0[m
+Author: FLance03 <60454430+FLance03@users.noreply.github.com>
+Date:   Mon Feb 21 22:48:12 2022 +0800
+
+    Initialized repository
